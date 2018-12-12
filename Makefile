@@ -1,19 +1,16 @@
 CC = g++
-CFLAGS =
-OBJ = main.o Parser.o
-EXE = practica
+CFLAGS = -O2 -DLOCAL -g -fsanitize=undefined,address -Wall -Wshadow
+OBJ = bin/main.o bin/parser.o
+EXE = bin/LSH.exe
 
-all: $(OBJ)
+bin/LSH.exe: $(OBJ)
 	$(CC) -o $(EXE) $(OBJ) $(CFLAGS)
 
-Parser: Parser.cc Parser.h
-	$(CC) -c Parser.cc $(CFLAGS)
-	
-main: main.cc
-	$(CC) -c main.cc $(CFLAGS)
+bin/parser.o: src/Parser.cc inc/Parser.h
+	$(CC) -o bin/parser.o -c src/Parser.cc $(CFLAGS) -I ./inc
 
-
-
+bin/main.o: src/main.cc
+	$(CC) -o bin/main.o -c src/main.cc $(CFLAGS) -I ./inc
 
 .PHONY: clean
 

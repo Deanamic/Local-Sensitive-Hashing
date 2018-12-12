@@ -1,9 +1,7 @@
 #include "Parser.h"
 using namespace std;
 
-Parser::Parser(string archivo) {
-    this->archivo = archivo;
-}
+Parser::Parser(string s) :archivo(s){}
 
 void Parser::parse() {
     if(document.size() > 0) return;
@@ -13,7 +11,7 @@ void Parser::parse() {
         string frase;
         while (ficheroEntrada >> frase) {
             for (int i = 0; i < (int)frase.size(); ++i) {
-                char c = frase[i];           
+                char c = frase[i];
                 if (isalpha(c)) {
                     document += tolower(c);
                 }
@@ -43,13 +41,10 @@ vector<string> Parser::getKShingles(int k) {
     int n = document.size();
     if (k > 0 and n-k+1 > 0) {
         vector<string> kshingles(n-k+1);
-        for (int i = 0; i < kshingles.size(); ++i) {
+        for (int i = 0; i < (int)kshingles.size(); ++i) {
             kshingles[i] = document.substr(i, k);
         }
         return kshingles;
-    } 
+    }
+    throw runtime_error("Shingles size large than document size");
 }
-
-
-
-
