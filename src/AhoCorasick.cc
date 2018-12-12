@@ -1,16 +1,10 @@
 #include "AhoCorasick.h"
 
-AhoCorasick::AhoCorasick(const vector<string>& v) {
+AhoCorasick::AhoCorasick(const vector<string>& v, int alpha): Alpha(alpha) {
   build(v);
 }
 
-struct AhoCorasick::node {
-  node(int par, char l, int Alpha): nxt(Alpha,0), p(par), c(l) {}
-  vector<int> nxt;
-  int p = -1;
-  char c;
-  int end = 0, SuffixLink = -1, cnt = 0;
-};
+AhoCorasick::Node::Node(int par, char l, int Alpha): nxt(Alpha,0), p(par), c(l) {}
 
 int AhoCorasick::getval(const char c) {
   if(c == ' ') return 0;
@@ -23,6 +17,7 @@ void AhoCorasick::CreateSuffixLink() {
   queue<int> q;
   for(q.push(0); q.size(); q.pop()) {
     int pos = q.front();
+    if(pos >= (int)V.size()) throw runtime_error("RIP C++");
     order.push_back(pos);
     if(!pos || !V[pos].p) V[pos].SuffixLink = 0;
     else {
@@ -39,12 +34,13 @@ void AhoCorasick::CreateSuffixLink() {
 }
 
 void AhoCorasick::build(const vector<string> &v) {
+  V.emplace_back(-1, 0, Alpha);
   for(auto &s : v) {
     int pos = 0;
     for(auto &c : s) {
       int val = getval(c);
       if(!V[pos].nxt[val]) {
-        V.emplace_back(pos, c, 40);
+        V.emplace_back(pos, c, Alpha);
         V[pos].nxt[val] = (int)V.size() - 1;
       }
       pos = V[pos].nxt[val];
@@ -63,7 +59,7 @@ int AhoCorasick::findMatches(const string& s) {
   }
   for(int i = (int)order.size() - 1; i >= 0; --i) {
     int	x = order[i];
-    matches += V[x].cnt;
+    matches += V[x].end * V[x].cnt;
     if(V[x].SuffixLink != -1) V[V[x].SuffixLink].cnt += V[x].cnt;
   }
   return matches;

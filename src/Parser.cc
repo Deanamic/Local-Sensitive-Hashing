@@ -1,7 +1,7 @@
 #include "Parser.h"
 using namespace std;
 
-Parser::Parser(string s) :archivo(s){}
+Parser::Parser(string s) :archivo(s), parseado(false){}
 
 void Parser::parse() {
     if(document.size() > 0) return;
@@ -23,13 +23,15 @@ void Parser::parse() {
             if(document.size() > 0 and document.back() != ' ') document += ' ';
         }
     }
+    else throw runtime_error("File does not exist");
     ficheroEntrada.close();
+    while(document.back() == ' ') document.pop_back();
     parseado = true;
 }
 
 string Parser::getDocument() {
     if (not parseado) parse();
-    return document.substr(0, int(document.size()-1));
+    return document.substr(0, int(document.size()));
 }
 
 bool Parser::getParseado() {
@@ -39,6 +41,7 @@ bool Parser::getParseado() {
 vector<string> Parser::getKShingles(int k) {
     if (not parseado) parse();
     int n = document.size();
+    cout << document << endl;
     if (k > 0 and n-k+1 > 0) {
         vector<string> kshingles(n-k+1);
         for (int i = 0; i < (int)kshingles.size(); ++i) {
