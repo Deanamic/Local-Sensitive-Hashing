@@ -10,7 +10,10 @@ class AhoCorasick {
 public:
   AhoCorasick(const vector<string>& v, int alpha);
   int findMatches(const string& s);
+  int getNumWords();
 private:
+  int Words;
+  int K;
   int Alpha;
   vector<int> order;
   int getval(const char c);

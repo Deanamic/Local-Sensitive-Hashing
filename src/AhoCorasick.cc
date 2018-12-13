@@ -1,6 +1,6 @@
 #include "AhoCorasick.h"
 
-AhoCorasick::AhoCorasick(const vector<string>& v, int alpha): Alpha(alpha) {
+AhoCorasick::AhoCorasick(const vector<string>& v, int alpha): Words(0), K(v[0].size()), Alpha(alpha) {
   build(v);
 }
 
@@ -17,7 +17,6 @@ void AhoCorasick::CreateSuffixLink() {
   queue<int> q;
   for(q.push(0); q.size(); q.pop()) {
     int pos = q.front();
-    if(pos >= (int)V.size()) throw runtime_error("RIP C++");
     order.push_back(pos);
     if(!pos || !V[pos].p) V[pos].SuffixLink = 0;
     else {
@@ -45,9 +44,14 @@ void AhoCorasick::build(const vector<string> &v) {
       }
       pos = V[pos].nxt[val];
     }
-    V[pos].end++;
+    if(V[pos].end == 0) Words++;
+    V[pos].end = 1;
   }
   CreateSuffixLink();
+}
+
+int AhoCorasick::getNumWords() {
+  return Words;
 }
 
 int AhoCorasick::findMatches(const string& s) {
@@ -59,8 +63,9 @@ int AhoCorasick::findMatches(const string& s) {
   }
   for(int i = (int)order.size() - 1; i >= 0; --i) {
     int	x = order[i];
-    matches += V[x].end * V[x].cnt;
+    if(V[x].end) matches += V[x].cnt;
     if(V[x].SuffixLink != -1) V[V[x].SuffixLink].cnt += V[x].cnt;
+    V[x].cnt = 0;
   }
   return matches;
 }
