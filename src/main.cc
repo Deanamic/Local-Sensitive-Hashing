@@ -14,7 +14,8 @@ int main(int argc, char *argv[]) {
     }
     else nombre = argv[1];
     nombre += ".txt"; */
-    Parser doc1("./data/Test1.dat"), doc2("./data/Test1.dat");
+    //canvi
+    Parser doc1("./data/Test1.dat"), doc2("./data/Test2.dat");
     auto v = doc1.getKShingles(5);
     auto v1 = doc2.getKShingles(5);
     cerr << v.size() << ' ' << v1.size() << endl;
