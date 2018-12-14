@@ -63,7 +63,7 @@ int AhoCorasick::findMatches(const string& s) {
   }
   for(int i = (int)order.size() - 1; i >= 0; --i) {
     int	x = order[i];
-    if(V[x].end) matches += V[x].cnt;
+    if(V[x].end && V[x].cnt) matches++;
     if(V[x].SuffixLink != -1) V[V[x].SuffixLink].cnt += V[x].cnt;
     V[x].cnt = 0;
   }

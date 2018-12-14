@@ -31,7 +31,7 @@ void Parser::parse() {
 
 string Parser::getDocument() {
     if (not parseado) parse();
-    return document.substr(0, int(document.size()));
+    return document;
 }
 
 bool Parser::getParseado() {
