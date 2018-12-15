@@ -2,8 +2,9 @@
 #include <fstream>
 #include <set>
 #include "Parser.h"
-#include "AhoCorasick.h"
+#include "JaccardAhoCorasick.h"
 #include "MinHash.h"
+#include "Jaccard.h"
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -19,34 +20,18 @@ int main(int argc, char *argv[]) {
     Parser doc1("./data/Test1.dat"), doc2("./data/Test2.dat");
     auto v1 = doc1.getKShingles(5);
     auto v2 = doc2.getKShingles(5);
-    AhoCorasick AC1(v1, 'z' - 'a' + 12), AC2(v2, 'z' - 'a' + 12);
-    string s1 = doc1.getDocument(), s2 = doc2.getDocument();
-    cout << AC1.findMatches(s2)/double(AC1.getNumWords() + AC2.getNumWords() - AC1.findMatches(s2)) << endl;
-    
-    
+    string s1 = doc1.getDocument();
+    string s2 = doc2.getDocument();
+
+    JaccardAhoCorasick JAC({v1,v2},{s1,s2});
     MinHash M({v1,v2}, 10000);
+    Jaccard J({v1,v2});
+    cout << JAC.getJaccard(0,1) << endl;
+    cout << J.getJaccard(0,1) << endl;
     double threshold = 0.18;
     auto candidates = M.getSimilarDocuments(threshold);
     cout << "List of documents more similar than " << threshold << endl;
-    for (int i = 0; i < (int)candidates.size(); ++i){
-		cout << candidates[i].first << " " << candidates[i].second << endl;
-	}
-    
-    
-    set<string> seric;
-    for (int i = 0; i < (int)v1.size(); i++) {
-        seric.insert(v1[i]);
+    for (pair<int,int>& p : candidates){
+      cout << p .first << " " << p.second << ' ' << M.getJaccard(p.first, p.second) << endl;
     }
-    int cont = 0;
-    set<string>smiguel;
-    for (int i = 0; i < (int)v2.size(); i++) {
-        smiguel.insert(v2[i]);
-    }
-
-    for (string s : smiguel) if (seric.count(s)) ++cont;
-    for (int i = 0; i < (int)v2.size(); i++) {
-        seric.insert(v2[i]);
-    }
-    cout << double(cont)/double(seric.size()) << endl;
-    return 0;
 }
