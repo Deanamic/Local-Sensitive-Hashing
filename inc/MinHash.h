@@ -12,10 +12,11 @@ public:
   MinHash(vector<vector<string>> shinglesMatrix, int r);
   int getSignatureAtIndex(int docIdx, int i);
   double getJaccard(int docIdx1, int docIdx2);
+  vector<pair<int, int> > getCandidatesLSH(int bandWidth);
 private:
   int numDoc;
   int numPerm;
-  vector<vector<int>> signatureMatrix;
+  vector<vector<int> > signatureMatrix;
 };
 
 #endif

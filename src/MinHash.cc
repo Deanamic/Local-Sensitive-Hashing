@@ -1,5 +1,6 @@
 #include "MinHash.h"
-#include <bits/stdc++.h>
+#include <iostream>
+#include <set>
 MinHash::MinHash(vector<vector<string>> shinglesMatrix, int r) : numDoc(shinglesMatrix.size()), numPerm(r){
   vector<unordered_set<string>> foundShingles(numDoc);
   vector<string> shingles;
@@ -35,3 +36,29 @@ double MinHash::getJaccard(int docIdx1, int docIdx2) {
   return cnt/double(numPerm);
 }
 
+
+vector<pair<int, int> > MinHash::getCandidatesLSH(int bandWidth){
+	vector < pair < int , int > > candidates;
+	if(numPerm%bandWidth != 0) {
+		cout << "Band width should divide the number of permutations" << endl;
+		cout << "bandWidth = " << bandWidth << ", numPerm = " << numPerm << endl;
+		return candidates;
+	}
+	set < pair < int , int > > candidates1;
+	int numBands = numPerm/bandWidth;
+	for (int i = 0; i < numBands; ++i){
+		vector < vector < int > > v (10^9 + 7);
+		for (int j = 0; j < numDoc; ++j){
+			int cont = 0;
+			for (int t = i*bandWidth; t<(i+1)*bandWidth; ++t){
+				cont += signatureMatrix[t][j];
+				cont %= (10^9 + 7); 
+			}
+			for (int t = 0; t<(int)v[cont].size(); ++t){
+				candidates1.insert({min(v[cont][t], numDoc), max(v[cont][t], numDoc)});
+			}
+		}
+	}
+	for (auto t : candidates1) candidates.push_back(t);
+	return candidates;
+}
