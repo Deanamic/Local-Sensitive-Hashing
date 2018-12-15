@@ -18,7 +18,7 @@ long long PolyHash::evaluate(long long x) {
     val += a;
     val %= Mod;
   }
-  return val;
+  return (val%Mod+Mod)%Mod;
 }
 
 long long PolyHash::getPrimeMod(long long n){

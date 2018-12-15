@@ -49,3 +49,6 @@ vector <pair<int,int>> LSHBanding::getSimilarDocuments(double threshold){
 	return similar;
 }
 
+double LSHBanding::getJaccard(int doc1Idx, int doc2Idx) {
+  return MinHash::getJaccard(doc1Idx, doc2Idx);
+}

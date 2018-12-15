@@ -7,6 +7,7 @@ class LSHBanding : MinHash {
 public:
   LSHBanding(vector<vector<string>> shinglesMatrix, int r);
   vector <pair<int,int>> getSimilarDocuments(double threshold);
+  double getJaccard(int doc1Idx, int doc2Idx);
 private:
   vector<pair<int, int> > getCandidatesLSH(int bandWidth);
   int calculateBandWidth(double threshold);

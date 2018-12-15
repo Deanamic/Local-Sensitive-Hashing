@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -O2 -DLOCAL -g -fsanitize=undefined,address -Wall -Wshadow -std=c++14
-OBJ = bin/main.o bin/Parser.o bin/AhoCorasick.o bin/PolyHash.o bin/MinHash.o bin/Jaccard.o bin/JaccardAhoCorasick.o bin/LSHBanding.o bin/OnePermutationHash.o
+OBJ = bin/main.o bin/Parser.o bin/AhoCorasick.o bin/PolyHash.o bin/MinHash.o bin/Jaccard.o bin/JaccardAhoCorasick.o bin/LSHBanding.o bin/OnePermutationHash.o bin/LSHOPBanding.o
 EXE = bin/LSH.exe
 
 bin/LSH.exe: $(OBJ)
@@ -20,6 +20,9 @@ bin/PolyHash.o: src/PolyHash.cc inc/PolyHash.h
 
 bin/OnePermutationHash.o: src/OnePermutationHash.cc inc/OnePermutationHash.h bin/PolyHash.o
 	$(CC) -o bin/OnePermutationHash.o -c src/OnePermutationHash.cc $(CFLAGS) -I ./inc
+
+bin/LSHOPBanding.o: src/LSHOPBanding.cc inc/LSHOPBanding.h bin/OnePermutationHash.o
+	$(CC) -o bin/LSHOPBanding.o -c src/LSHOPBanding.cc $(CFLAGS) -I ./inc
 
 bin/MinHash.o: src/MinHash.cc inc/MinHash.h inc/PolyHash.h
 	$(CC) -o bin/MinHash.o -c src/MinHash.cc $(CFLAGS) -I ./inc

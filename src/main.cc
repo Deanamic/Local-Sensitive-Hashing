@@ -7,6 +7,7 @@
 #include "Jaccard.h"
 #include "LSHBanding.h"
 #include "OnePermutationHash.h"
+#include "LSHOPBanding.h"
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -28,17 +29,23 @@ int main(int argc, char *argv[]) {
 
     JaccardAhoCorasick JAC({v1,v2},{s1,s2});
     MinHash M({v1,v2}, 100);
-    OnePermutationHash OPH({v1,v2}, 50, 15);
     LSHBanding LSH({v1,v2}, 5000);
+    OnePermutationHash OPH({v1,v2}, 50, 15);
+    LSHOPBanding OPB({v1,v2},50,15);
     Jaccard J({v1,v2});
     cout << JAC.getJaccard(0,1) << endl;
     cout << J.getJaccard(0,1) << endl;
     cout << M.getJaccard(0,1) << endl;
     cout << OPH.getJaccard(0,1) << endl;
-    double threshold = 0.18;
+    double threshold = 0.3;
     auto candidates = LSH.getSimilarDocuments(threshold);
     cout << "List of documents more similar than " << threshold << endl;
     for (pair<int,int>& p : candidates){
-      cout << p .first << " " << p.second << ' ' << M.getJaccard(p.first, p.second) << endl;
+      cout << p .first << " " << p.second << ' ' << LSH.getJaccard(p.first, p.second) << endl;
+    }
+    candidates = OPB.getSimilarDocuments(threshold);
+    cout << "List of documents more similar than " << threshold << endl;
+    for (pair<int,int>& p : candidates){
+      cout << p .first << " " << p.second << ' ' << OPB.getJaccard(p.first, p.second) << endl;
     }
 }
