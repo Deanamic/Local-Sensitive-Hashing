@@ -4,21 +4,18 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <math.h>
 #include "PolyHash.h"
 using namespace std;
 
 class MinHash {
 public:
   MinHash(vector<vector<string>> shinglesMatrix, int r);
-  vector < pair < int, int > > getSimilarDocuments(double threshold);
   double getJaccard(int docIdx1, int docIdx2);
-private:
+protected:
   int numDoc;
   int numPerm;
   vector<vector<int> > signatureMatrix;
-  vector<pair<int, int> > getCandidatesLSH(int bandWidth);
-  int calculateBandWidth(double threshold);
-  int hashVector(int docIdx, int init, int fin, int value, int mod);
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include "JaccardAhoCorasick.h"
 #include "MinHash.h"
 #include "Jaccard.h"
+#include "LSHBanding.h"
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -24,12 +25,14 @@ int main(int argc, char *argv[]) {
     string s2 = doc2.getDocument();
 
     JaccardAhoCorasick JAC({v1,v2},{s1,s2});
-    MinHash M({v1,v2}, 10000);
+    MinHash M({v1,v2}, 5000);
+    LSHBanding LSH({v1,v2},5000);
     Jaccard J({v1,v2});
     cout << JAC.getJaccard(0,1) << endl;
     cout << J.getJaccard(0,1) << endl;
+    cout << M.getJaccard(0,1) << endl;
     double threshold = 0.18;
-    auto candidates = M.getSimilarDocuments(threshold);
+    auto candidates = LSH.getSimilarDocuments(threshold);
     cout << "List of documents more similar than " << threshold << endl;
     for (pair<int,int>& p : candidates){
       cout << p .first << " " << p.second << ' ' << M.getJaccard(p.first, p.second) << endl;
