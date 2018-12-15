@@ -8,6 +8,7 @@ using namespace std;
 
 class AhoCorasick {
 public:
+  AhoCorasick(){}
   AhoCorasick(const vector<string>& v, int alpha);
   int findMatches(const string& s);
   int getNumWords();
