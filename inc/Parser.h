@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
+#include <cstdlib>
 using namespace std;
 
 class Parser {
@@ -14,6 +16,7 @@ public:
     void parse();
     vector<string> getKShingles(int k);
     string getDocument();
+    vector<string> getDocumentShuffle(vector<int> seeds);
     bool getParseado();
 
 private:
