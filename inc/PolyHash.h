@@ -8,6 +8,7 @@ using namespace std;
 class PolyHash {
 public:
   PolyHash(int seed, int gr, long long mod);
+  PolyHash(vector<int> coef, long long mod);
   long long evaluate(long long x);
   static long long getPrimeMod(long long n);
 private:

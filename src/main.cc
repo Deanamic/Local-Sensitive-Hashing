@@ -22,22 +22,17 @@ int main(int argc, char *argv[]) {
     AhoCorasick AC1(v1, 'z' - 'a' + 12), AC2(v2, 'z' - 'a' + 12);
     string s1 = doc1.getDocument(), s2 = doc2.getDocument();
     cout << AC1.findMatches(s2)/double(AC1.getNumWords() + AC2.getNumWords() - AC1.findMatches(s2)) << endl;
-    cout << AC1.findMatches(s2) << endl;
-    cout << AC2.findMatches(s1) << endl;
     
     
     MinHash M({v1,v2}, 10000);
-    cout << M.getJaccard(0, 1) << endl;
-
-
-/*
-    string s = doc2.getDocument(), s1 = doc1.getDocument();
-    cout << AC1.findMatches(s)/double(AC1.getNumWords() + AC2.getNumWords() - AC1.findMatches(s)) << endl;
-    cout << AC1.findMatches(s) << endl;
-    cout << AC2.findMatches(s1) << endl;
-    MinHash M({v,v1}, 1000);
-    cout << M.getJaccard(0, 1) << endl;
-*/
+    double threshold = 0.18;
+    auto candidates = M.getSimilarDocuments(threshold);
+    cout << "List of documents more similar than " << threshold << endl;
+    for (int i = 0; i < (int)candidates.size(); ++i){
+		cout << candidates[i].first << " " << candidates[i].second << endl;
+	}
+    
+    
     set<string> seric;
     for (int i = 0; i < (int)v1.size(); i++) {
         seric.insert(v1[i]);

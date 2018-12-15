@@ -7,6 +7,10 @@ PolyHash::PolyHash(int seed, int gr, long long mod) : Coef(gr + 1), Mod(mod) {
   }
 }
 
+PolyHash::PolyHash(vector<int> coef, long long mod) : Coef((int)coef.size()), Mod(mod) {
+  for(int i = 0; i < (int)coef.size(); ++i) Coef[i] = coef[i];
+}
+
 long long PolyHash::evaluate(long long x) {
   long long val = 0;
   for(long long a : Coef) {

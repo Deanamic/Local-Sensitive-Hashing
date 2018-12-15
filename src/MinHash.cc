@@ -1,6 +1,8 @@
 #include "MinHash.h"
+#include "PolyHash.h"
 #include <iostream>
 #include <set>
+#include <math.h>
 MinHash::MinHash(vector<vector<string>> shinglesMatrix, int r) : numDoc(shinglesMatrix.size()), numPerm(r){
   vector<unordered_set<string>> foundShingles(numDoc);
   vector<string> shingles;
@@ -26,39 +28,57 @@ MinHash::MinHash(vector<vector<string>> shinglesMatrix, int r) : numDoc(shingles
   }
 }
 
-int MinHash::getSignatureAtIndex(int docIdx, int i) {
-    return signatureMatrix[i][docIdx];
+int MinHash::calculateBandWidth(double threshold){
+	double margin = 0.1;
+	if (threshold < margin) {
+		cout << "threshold too low" << endl;
+		return 1;
+	}
+	for (int bandWidth = 1; bandWidth < numPerm; bandWidth++){
+		double value = pow(1.0/double(numPerm/bandWidth),1.0/double(bandWidth));
+		if (value > threshold - margin) return bandWidth;
+	}
+	return 1;
+}
+
+vector < pair < int , int > > MinHash::getSimilarDocuments(double threshold){
+	int bandWidth = calculateBandWidth(threshold);
+	cout << "BandWidth = " << bandWidth << endl;
+	auto candidates = getCandidatesLSH(bandWidth);
+	vector < pair < int, int > > similar;
+	for (auto s : candidates){
+		if (getJaccard(s.first, s.second)) similar.push_back(s);
+	}
+	return similar;
 }
 
 double MinHash::getJaccard(int docIdx1, int docIdx2) {
   int cnt = 0;
-  for(int i = 0; i < numPerm; ++i) if(getSignatureAtIndex(docIdx1, i) == getSignatureAtIndex(docIdx2, i)) ++cnt;
+  for(int i = 0; i < numPerm; ++i) if(signatureMatrix[i][docIdx1] == signatureMatrix[i][docIdx2]) ++cnt;
   return cnt/double(numPerm);
 }
 
+int MinHash::hashVector(int docIdx, int init, int fin, int value, int mod){
+	vector<int> v(fin-init);
+	for (int i = init; i < fin; i++) v[i-init] = signatureMatrix[i][docIdx];
+	PolyHash P = PolyHash(v,mod);
+	return P.evaluate(value);
+}
 
 vector<pair<int, int> > MinHash::getCandidatesLSH(int bandWidth){
-	vector < pair < int , int > > candidates;
-	if(numPerm%bandWidth != 0) {
-		cout << "Band width should divide the number of permutations" << endl;
-		cout << "bandWidth = " << bandWidth << ", numPerm = " << numPerm << endl;
-		return candidates;
-	}
 	set < pair < int , int > > candidates1;
 	int numBands = numPerm/bandWidth;
 	for (int i = 0; i < numBands; ++i){
-		vector < vector < int > > v (10^9 + 7);
+		vector < vector < int > > v (7919);
 		for (int j = 0; j < numDoc; ++j){
-			int cont = 0;
-			for (int t = i*bandWidth; t<(i+1)*bandWidth; ++t){
-				cont += signatureMatrix[t][j];
-				cont %= (10^9 + 7); 
+			int hash = hashVector(j,i*bandWidth, (i+1)*bandWidth, 107, 7919);
+			for (int t = 0; t<(int)v[hash].size(); ++t){
+				candidates1.insert({min(v[hash][t], j), max(v[hash][t], j)});
 			}
-			for (int t = 0; t<(int)v[cont].size(); ++t){
-				candidates1.insert({min(v[cont][t], numDoc), max(v[cont][t], numDoc)});
-			}
+			v[hash].push_back(j);
 		}
 	}
+	vector < pair < int , int > > candidates;
 	for (auto t : candidates1) candidates.push_back(t);
 	return candidates;
 }
