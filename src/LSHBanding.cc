@@ -3,7 +3,7 @@
 LSHBanding::LSHBanding(vector<vector<string>> shinglesMatrix, int r) : MinHash(shinglesMatrix,r) {}
 
 int LSHBanding::calculateBandWidth(double threshold){
-	double margin = 0.1;
+	double margin = 0.05;
 	if (threshold < margin) {
 		return -1;
 	}
@@ -41,12 +41,7 @@ vector<pair<int,int>> LSHBanding::getCandidatesLSH(int bandWidth){
 
 vector <pair<int,int>> LSHBanding::getSimilarDocuments(double threshold){
 	int bandWidth = calculateBandWidth(threshold);
-	auto candidates = getCandidatesLSH(bandWidth);
-	vector <pair<int,int>> similar;
-	for (auto s : candidates){
-		if (getJaccard(s.first, s.second)) similar.push_back(s);
-	}
-	return similar;
+	return getCandidatesLSH(bandWidth);
 }
 
 double LSHBanding::getJaccard(int doc1Idx, int doc2Idx) {

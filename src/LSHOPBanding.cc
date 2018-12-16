@@ -3,7 +3,7 @@
 LSHOPBanding::LSHOPBanding(vector<vector<string>> shinglesMatrix, int k, int l) : OnePermutationHash(shinglesMatrix, k, l), numPerm(k*l) { }
 
 int LSHOPBanding::calculateBandWidth(double threshold){
-	double margin = 0.1;
+	double margin = 0.05;
 	if (threshold < margin) {
 		return -1;
 	}
@@ -42,12 +42,7 @@ vector<pair<int,int>> LSHOPBanding::getCandidatesLSH(int bandWidth){
 
 vector <pair<int,int>> LSHOPBanding::getSimilarDocuments(double threshold){
 	int bandWidth = calculateBandWidth(threshold);
-	auto candidates = getCandidatesLSH(bandWidth);
-	vector <pair<int,int>> similar;
-	for (auto s : candidates){
-		if (getJaccard(s.first, s.second)) similar.push_back(s);
-	}
-	return similar;
+	return getCandidatesLSH(bandWidth);
 }
 
 double LSHOPBanding::getJaccard(int doc1Idx, int doc2Idx) {

@@ -12,13 +12,13 @@
 #include "LSHOPBanding.h"
 using namespace std;
 
-void Testcnn(int shinglesize) {
-  const int numDocs = 199;
+void TestNews(int shinglesize) {
+  const int numDocs = 19;
   vector<Parser> docParser(numDocs);
   vector<string> docs(numDocs);
   vector<vector<string>> Kshingles(numDocs);
   for(int i = 0; i < numDocs; ++i) {
-    string curDoc = "./data/CNN/cnn/cnn.dat" + to_string(i+1);
+    string curDoc = "./data/News/News.dat" + to_string(i+1);
     docParser[i] = Parser(curDoc);
     docs[i] = docParser[i].getDocument();
     Kshingles[i] = docParser[i].getKShingles(shinglesize);
@@ -32,22 +32,117 @@ void Testcnn(int shinglesize) {
   auto v1 = JAC.getAllPairsJaccard();
   cout << "JACCARDAHOCORASICK CLOCK: " << double(clock() - t)/CLOCKS_PER_SEC << endl;
   for(int i = 0; i < numDocs; ++i) {
-    for(int j = i + 1; j < numDocs; ++j) {
-      if(abs(v1[i][j] - v2[i][j]) > 0.005) cout << "BUG" << endl;
-      if(v1[i][j] > 0.2) cout << v1[i][j] << '\n';
+    for(int j = 0; j < i; ++j) {
+      cout << fixed << setprecision(5) << v1[i][j] << ' ';
     }
+    cout << endl;
   }
 }
 
-void test(int num, string nombreTest) {
+void TestShuffle(int shinglesize) {
+  const int numDocs = 20;
+  vector<Parser> docParser(numDocs);
+  vector<string> docs(numDocs);
+  vector<vector<string>> Kshingles(numDocs);
+  for(int i = 0; i < numDocs; ++i) {
+    string curDoc = "./data/ShuffleTest/ShuffleTest.dat" + to_string(i+1);
+    docParser[i] = Parser(curDoc);
+    docs[i] = docParser[i].getDocument();
+    Kshingles[i] = docParser[i].getKShingles(shinglesize);
+  }
+  JaccardAhoCorasick JAC(Kshingles, docs);
+  for(int i = 0; i < numDocs; ++i) {
+    for(int j = i + 1; j < numDocs; ++j) {
+      cout << fixed << setprecision(5) << JAC.getJaccard(i,j) << ' ';
+    }
+    cout << endl;
+  }
+  MinHash M(Kshingles, 10);
+  OnePermutationHash OPH(Kshingles, 3, 2);
+  LSHBanding LSH(Kshingles, 100);
+  LSHOPBanding LSHOP(Kshingles, 3, 20);
+
+  cout << "Test de Precision del Minhash" << endl;
+  cout << "Con 10 Permutaciones" << endl;
+  double sum = 0;
+  int cnt = 0;
+  for(int i = 0; i < numDocs; ++i) {
+    for(int j = i + 1; j < numDocs; ++j) {
+      cnt++;
+      double dif = JAC.getJaccard(i, j) - M.getJaccard(i,j);
+      sum += dif*dif;
+    }
+  }
+  cout << "Error medio cuadratico: " << sqrt(sum)/cnt << endl << endl;
+
+  cout << endl;
+  cout << "Test de Precision del OnePermutationhash" << endl;
+  cout << "Con 3 grupos y 2 permutaciones" << endl;
+  sum = 0;
+  cnt = 0;
+  for(int i = 0; i < numDocs; ++i) {
+    for(int j = i + 1; j < numDocs; ++j) {
+      cnt++;
+      double dif = JAC.getJaccard(i, j) - OPH.getJaccard(i,j);
+      sum += dif*dif;
+    }
+  }
+  cout << "Error medio cuadratico: " << sqrt(sum)/cnt << endl;
+  cout << endl;
+  cout << "Test de falsos positivos y falsos negativos con distintos threshholds utilizando Banding y Minhash" << endl;
+  cout << "Con 10 Permutaciones" << endl;
+  for(int I = 1; I < 10; ++I) {
+    double threshhold = I * 0.1;
+    int FalseP = 0, FalseN = 0;
+    int RealAns = 0;
+    auto cand = LSH.getSimilarDocuments(threshhold);
+    for(pair<int,int> p : cand) {
+      if(JAC.getJaccard(p.first, p.second) < threshhold) FalseP++;
+    }
+    for(int i = 0; i < numDocs; ++i) {
+      for(int j = i + 1; j < numDocs; ++j) {
+        if(JAC.getJaccard(i, j) > threshhold) ++RealAns;
+      }
+    }
+    FalseN = RealAns - (cand.size() - FalseP);
+    int TrueP = cand.size() - FalseP - FalseN;
+    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos" << endl;
+    if(cand.size() > 0) cout << double(cand.size() - FalseN - FalseP)/(cand.size()) << "% de acierto\n";
+  }
+
+  cout << endl;
+  cout << "Test de falsos positivos y falsos negativos con distintos threshholds utilizando Banding y OnePermutationhash" << endl;
+  cout << "Con 3 grupos y 2 permutaciones" << endl;
+  for(int I = 1; I < 10; ++I) {
+    double threshhold = I * 0.1;
+    int FalseP = 0, FalseN = 0;
+    int RealAns = 0;
+    auto cand = LSHOP.getSimilarDocuments(threshhold);
+    for(pair<int,int> p : cand) {
+      if(JAC.getJaccard(p.first, p.second) < threshhold) FalseP++;
+    }
+    for(int i = 0; i < numDocs; ++i) {
+      for(int j = i + 1; j < numDocs; ++j) {
+        if(JAC.getJaccard(i, j) > threshhold) ++RealAns;
+      }
+    }
+    FalseN = RealAns - (cand.size() - FalseP);
+    int TrueP = cand.size() - FalseP - FalseN;
+    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos" << endl;
+    if(cand.size() > 0) cout << double(cand.size() - FalseN - FalseP)/(cand.size()) << "% de acierto\n";
+  }
+  cout << endl;
+}
+
+void test(int num, int shinglesize, string nombreTest) {
   vector<Parser> docParser(num);
   vector<string> docs(num);
   vector<vector<string>> Kshingles(num);
   for(int i = 0; i < num; ++i) {
-    string curDoc = nombreTest + to_string(i);
+    string curDoc = nombreTest + to_string(i+1);
     docParser[i] = Parser(curDoc);
     docs[i] = docParser[i].getDocument();
-    Kshingles[i] = docParser[i].getKShingles(7);
+    Kshingles[i] = docParser[i].getKShingles(shinglesize);
   }
   auto t = clock();
   Jaccard J(Kshingles);
@@ -98,6 +193,7 @@ void test(int num, string nombreTest) {
 }
 
 int main(int argc, char *argv[]) {
-  Testcnn(10);
-  test(400, "./data/TestAumentarNumTexto/Test4/Test4.dat");
+  TestShuffle(5);
+  // TestNews(6);
+  //test(400, 7, "./data/TestAumentarNumTexto/Test4/Test4.dat");
 }
