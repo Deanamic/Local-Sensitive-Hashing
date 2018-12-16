@@ -21,8 +21,8 @@ OnePermutationHash::OnePermutationHash(vector<vector<string>> shinglesMatrix, in
     for(int i = 0; i < numBins; ++i) {
       int curIdx = numBins * h + i;
       int binSize = (numWords+i)/numBins;
-      int it = curOffSet;
       for(int j = 0; j < numDoc; ++j) {
+        int it = curOffSet;
         for(; signatureMatrix[curIdx][j] == -1 && it < curOffSet + binSize; ++it) {
           int curPos = perm[it];
           if(curPos < numWords && foundShingles[j].count(shingles[curPos])) signatureMatrix[curIdx][j] = it;
