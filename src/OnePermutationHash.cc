@@ -13,17 +13,19 @@ OnePermutationHash::OnePermutationHash(vector<vector<string>> shinglesMatrix, in
   for(string s : universalShingleSet) shingles.push_back(s);
   signatureMatrix.assign(numTables*numBins, vector<int>(numDoc, -1));
   int numWords = universalShingleSet.size();
-  long long mod = PolyHash::getPrimeMod((numWords+numBins-1)/numBins);
+  vector<int> perm(numWords);
+  iota(perm.begin(), perm.end(), 0);
   for(int h = 0; h < numTables; ++h) {
+    random_shuffle(perm.begin(), perm.end());
     int curOffSet = 0;
     for(int i = 0; i < numBins; ++i) {
-      int curIdx = h*numBins + i;
+      int curIdx = numBins * h + i;
       int binSize = (numWords+i)/numBins;
-      PolyHash perm(i + 3*h*h, 1, mod);
+      int it = curOffSet;
       for(int j = 0; j < numDoc; ++j) {
-        for(int it = 0; signatureMatrix[curIdx][j] == -1 && it < mod; ++it) {
-          int curPos = perm.evaluate(it);
-          if(curPos < binSize && foundShingles[j].count(shingles[curOffSet + curPos])) signatureMatrix[curIdx][j] = it;
+        for(; signatureMatrix[curIdx][j] == -1 && it < curOffSet + binSize; ++it) {
+          int curPos = perm[it];
+          if(curPos < numWords && foundShingles[j].count(shingles[curPos])) signatureMatrix[curIdx][j] = it;
         }
       }
       curOffSet += binSize;
