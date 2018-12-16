@@ -16,7 +16,6 @@ public:
     void parse();
     vector<string> getKShingles(int k);
     string getDocument();
-    vector<string> getDocumentShuffle(vector<int> seeds);
     bool getParseado();
 
 private:

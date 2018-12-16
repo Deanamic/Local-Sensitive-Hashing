@@ -34,35 +34,6 @@ string Parser::getDocument() {
     return document;
 }
 
-vector<string> Parser::getDocumentShuffle(vector<int> seeds) {
-    if (not parseado) parse();
-    vector <string> doc;
-    
-    string aux;
-    for (int i = 0; i < (int)document.size(); ++i) {
-		if (document[i] != ' ') aux.push_back(document[i]);
-		else {
-			doc.push_back(aux);
-			aux = "";
-		}
-	}
-	doc.push_back(aux);
-	
-	
-	vector<string> result;
-	for (int i = 0; i < (int)seeds.size(); ++i) {
-		srand(seeds[i]);
-		random_shuffle(doc.begin(), doc.end());
-		string shuffleDoc = doc[0];
-		for (int j = 1; j < (int)doc.size(); ++j) {
-			shuffleDoc = shuffleDoc + ' ' + doc[j];
-		}
-		result.push_back(shuffleDoc);
-		cout << shuffleDoc << endl;
-	}
-	
-	return result;
-}
 
 bool Parser::getParseado() {
     return parseado;
