@@ -3,15 +3,16 @@
 LSHOPBanding::LSHOPBanding(vector<vector<string>> shinglesMatrix, int k, int l) : OnePermutationHash(shinglesMatrix, k, l), numPerm(k*l) { }
 
 int LSHOPBanding::calculateBandWidth(double threshold){
-	double margin = 0.05;
-	if (threshold < margin) {
-		return -1;
-	}
+  int cand = 1;
+  double curDist = 1;
 	for (int bandWidth = 1; bandWidth < numPerm; bandWidth++){
 		double value = pow(1.0/double(numPerm/bandWidth),1.0/double(bandWidth));
-		if (value > threshold - margin) return bandWidth;
+		if (abs(threshold - value) < curDist) {
+      curDist = threshold - value;
+      cand = bandWidth;
+    }
 	}
-	return 1;
+  return cand;
 }
 
 int LSHOPBanding::hashVector(int docIdx, int init, int fin, int value, int mod){
@@ -27,7 +28,7 @@ vector<pair<int,int>> LSHOPBanding::getCandidatesLSH(int bandWidth){
 	for (int i = 0; i < numBands; ++i){
 		unordered_map < int, vector <int> > v;
 		for (int j = 0; j < numDoc; ++j){
-			int hash = hashVector(j,i*bandWidth, (i+1)*bandWidth, 7919, 1e9 + 7);
+			int hash = hashVector(j,i*bandWidth, (i+1)*bandWidth, 19, 1e9 + 7);
 			for (int t = 0; t<(int)v[hash].size(); ++t){
 				candidates1.insert({min(v[hash][t], j), max(v[hash][t], j)});
 			}

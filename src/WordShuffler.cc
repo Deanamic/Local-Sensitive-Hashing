@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 using namespace std;
-const int MAXIT = 50;
+const int MAXIT = 20;
 
 int main() {
   string filename;

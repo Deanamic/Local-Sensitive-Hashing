@@ -59,8 +59,8 @@ void TestShuffle(int shinglesize) {
   }
   MinHash M(Kshingles, 10);
   OnePermutationHash OPH(Kshingles, 3, 2);
-  LSHBanding LSH(Kshingles, 100);
-  LSHOPBanding LSHOP(Kshingles, 3, 20);
+  LSHBanding LSH(Kshingles, 20);
+  LSHOPBanding LSHOP(Kshingles, 4, 10);
 
   cout << "Test de Precision del Minhash" << endl;
   cout << "Con 10 Permutaciones" << endl;
