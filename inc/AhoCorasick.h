@@ -16,8 +16,8 @@ private:
   int Words;
   int K;
   int Alpha;
-  vector<int> order;
-  int getval(const char c);
+  vector<int> endStates;
+  int getval(const char& c);
   void build(const vector<string>& v);
   void CreateSuffixLink();
   struct Node {
