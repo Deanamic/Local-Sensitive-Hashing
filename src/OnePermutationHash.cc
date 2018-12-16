@@ -11,16 +11,15 @@ OnePermutationHash::OnePermutationHash(vector<vector<string>> shinglesMatrix, in
     }
   }
   for(string s : universalShingleSet) shingles.push_back(s);
-  //random_shuffle(shingles.begin(), shingles.end());
   signatureMatrix.assign(numTables*numBins, vector<int>(numDoc, -1));
   int numWords = universalShingleSet.size();
+  long long mod = PolyHash::getPrimeMod((numWords+numBins-1)/numBins);
   for(int h = 0; h < numTables; ++h) {
     int curOffSet = 0;
     for(int i = 0; i < numBins; ++i) {
       int curIdx = h*numBins + i;
       int binSize = (numWords+i)/numBins;
-      long long mod = PolyHash::getPrimeMod(binSize);
-      PolyHash perm(i*i + 1133*h, 1, mod);
+      PolyHash perm(i + 3*h*h, 1, mod);
       for(int j = 0; j < numDoc; ++j) {
         for(int it = 0; signatureMatrix[curIdx][j] == -1 && it < mod; ++it) {
           int curPos = perm.evaluate(it);
@@ -35,8 +34,8 @@ OnePermutationHash::OnePermutationHash(vector<vector<string>> shinglesMatrix, in
 double OnePermutationHash::getJaccard(int docIdx1, int docIdx2) {
   int cnt = 0;
   for(int i = 0; i < numTables; ++i) {
-    for(int j = 0; j < numBins; ++j) {
-      int curIdx = i*numBins + j;
+    int curIdx = i*numBins;
+    for(int j = 0; j < numBins; ++j, ++curIdx) {
       if(signatureMatrix[curIdx][docIdx1] == signatureMatrix[curIdx][docIdx2]) ++cnt;
     }
   }
