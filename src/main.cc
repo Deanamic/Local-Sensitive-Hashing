@@ -32,12 +32,12 @@ void Testcnn(int shinglesize) {
   cout << "JACCARDAHOCORASICK CLOCK: " << double(clock() - t)/CLOCKS_PER_SEC << endl;
   for(int i = 0; i < numDocs; ++i) {
     for(int j = i + 1; j < numDocs; ++j) {
-      if(abs(v1[i][j] - v2[i][j]) > 0.001) cout << "BUG" << endl;
+      if(abs(v1[i][j] - v2[i][j]) > 0.005) cout << "BUG" << endl;
       if(v1[i][j] > 0.2) cout << v1[i][j] << '\n';
     }
   }
 }
 int main(int argc, char *argv[]) {
-  Testcnn(50);
+  Testcnn(10);
   return 0;
 }
