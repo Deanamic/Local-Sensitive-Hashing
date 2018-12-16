@@ -32,7 +32,6 @@ void AhoCorasick::CreateSuffixLink() {
 }
 
 void AhoCorasick::build(const vector<string> &v) {
-  V.reserve(v.size() * v[0].size());
   V.emplace_back(-1, 0, Alpha);
   for(auto &s : v) {
     int pos = 0;

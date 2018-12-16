@@ -9,7 +9,7 @@ JaccardAhoCorasick::JaccardAhoCorasick(vector<vector<string>>& docShingles, vect
 
 double JaccardAhoCorasick::getJaccard(int doc1Idx, int doc2Idx) {
   int cnt;
-  if(document[doc1Idx].size() > document[doc2Idx].size()) cnt = ACTrie[doc1Idx].findMatches(document[doc2Idx]);
+  if(document[doc1Idx].size() < document[doc2Idx].size()) cnt = ACTrie[doc1Idx].findMatches(document[doc2Idx]);
   else cnt = ACTrie[doc2Idx].findMatches(document[doc1Idx]);
   return cnt/double(ACTrie[doc1Idx].getNumWords() + ACTrie[doc2Idx].getNumWords() - cnt);
 }

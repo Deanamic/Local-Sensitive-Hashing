@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O2 -DLOCAL -g -fsanitize=undefined,address -Wall -Wshadow -std=c++14
+CFLAGS = -O2 -DLOCAL -Wall -Wshadow -std=c++14
 OBJ = bin/main.o bin/Parser.o bin/AhoCorasick.o bin/PolyHash.o bin/MinHash.o bin/Jaccard.o bin/JaccardAhoCorasick.o bin/LSHBanding.o bin/OnePermutationHash.o bin/LSHOPBanding.o
 EXE = bin/LSH.exe
 
