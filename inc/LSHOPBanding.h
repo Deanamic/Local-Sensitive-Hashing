@@ -2,6 +2,7 @@
 #define LSHOPBANDING_H
 #include "OnePermutationHash.h"
 #include <set>
+#include <unordered_map>
 
 class LSHOPBanding : OnePermutationHash {
 public:

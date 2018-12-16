@@ -25,9 +25,9 @@ vector<pair<int,int>> LSHBanding::getCandidatesLSH(int bandWidth){
 	set<pair<int,int>> candidates1;
 	int numBands = numPerm/bandWidth;
 	for (int i = 0; i < numBands; ++i){
-		vector <vector<int>> v (7919);
+		unordered_map < int, vector <int> > v;
 		for (int j = 0; j < numDoc; ++j){
-			int hash = hashVector(j,i*bandWidth, (i+1)*bandWidth, 107, 7919);
+			int hash = hashVector(j,i*bandWidth, (i+1)*bandWidth, 7919, 1e9 + 7);
 			for (int t = 0; t<(int)v[hash].size(); ++t){
 				candidates1.insert({min(v[hash][t], j), max(v[hash][t], j)});
 			}

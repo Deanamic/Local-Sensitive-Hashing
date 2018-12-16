@@ -2,6 +2,7 @@
 #define LSHBANDING_H
 #include "MinHash.h"
 #include <set>
+#include <unordered_map>
 
 class LSHBanding : MinHash {
 public:
