@@ -1,5 +1,5 @@
-#ifndef __PARSER_H
-#define __PARSER_H
+#ifndef PARSER_H
+#define PARSER_H
 
 #include <fstream>
 #include <ctype.h>
@@ -12,17 +12,17 @@ using namespace std;
 
 class Parser {
 public:
-    Parser(string archivo);
-    void parse();
-    vector<string> getKShingles(int k);
-    string getDocument();
-    vector<string> getDocumentShuffle(vector<int> seeds);
-    bool getParseado();
+  Parser();
+  Parser(string archivo);
+  void parse();
+  vector<string> getKShingles(int k);
+  string getDocument();
+  bool getParseado();
 
 private:
-    string document;
-    string archivo;
-    bool parseado;
+  string document;
+  string archivo;
+  bool parseado;
 };
 
 #endif
