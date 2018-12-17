@@ -3,6 +3,7 @@
 #include <set>
 #include <cmath>
 #include <chrono>
+#include <assert.h>
 #include "Parser.h"
 #include "JaccardAhoCorasick.h"
 #include "MinHash.h"
@@ -14,6 +15,7 @@ using namespace std;
 
 //Test para comprovar que los métodos para calcular Jaccard son correctos
 void TestNews(int shinglesize) {
+  cout << endl << "TestNews" << endl;
   const int numDocs = 19;
   vector<Parser> docParser(numDocs);
   vector<string> docs(numDocs);
@@ -25,25 +27,20 @@ void TestNews(int shinglesize) {
     Kshingles[i] = docParser[i].getKShingles(shinglesize);
   }
   Jaccard J(Kshingles);
-  auto t = clock();
-  auto v2 = J.getAllPairsJaccard();
-  cout << "JACCARD CLOCK: " << double(clock() - t)/CLOCKS_PER_SEC << endl;
   JaccardAhoCorasick JAC(Kshingles, docs);
-  t = clock();
-  auto v1 = JAC.getAllPairsJaccard();
-  cout << "JACCARDAHOCORASICK CLOCK: " << double(clock() - t)/CLOCKS_PER_SEC << endl;
   for(int i = 0; i < numDocs; ++i) {
     for(int j = 0; j < i; ++j) {
-      cout << fixed << setprecision(5) << v1[i][j] << ' ';
+      cout << fixed << setprecision(5) << JAC.getJaccard(i,j) << ' ';
+      assert(abs(J.getJaccard(i,j) - JAC.getJaccard(i,j)) < 0.01);
     }
     cout << endl;
   }
 }
 
-
 //Calcula la precision de MinHashm, OPHash, LSHBanding y LSHOPBanding
 //Con 20 documentos formado por la permutacion de 20 palabras
 void TestShuffle(int shinglesize) {
+  cout << endl << "TestShuffle" << endl;
   const int numDocs = 20;
   vector<Parser> docParser(numDocs);
   vector<string> docs(numDocs);
@@ -56,15 +53,15 @@ void TestShuffle(int shinglesize) {
   }
   JaccardAhoCorasick JAC(Kshingles, docs);
   for(int i = 0; i < numDocs; ++i) {
-    for(int j = i + 1; j < numDocs; ++j) {
+    for(int j = 0; j < i; ++j) {
       cout << fixed << setprecision(5) << JAC.getJaccard(i,j) << ' ';
     }
     cout << endl;
   }
   MinHash M(Kshingles, 10);
   OnePermutationHash OPH(Kshingles, 3, 2);
-  LSHBanding LSH(Kshingles, 20);
-  LSHOPBanding LSHOP(Kshingles, 4, 10);
+  LSHBanding LSH(Kshingles, 30);
+  LSHOPBanding LSHOP(Kshingles, 5, 10);
 
   cout << "Test de Precision del Minhash" << endl;
   cout << "Con 10 Permutaciones" << endl;
@@ -110,8 +107,7 @@ void TestShuffle(int shinglesize) {
     }
     FalseN = RealAns - (cand.size() - FalseP);
     int TrueP = cand.size() - FalseP - FalseN;
-    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos" << endl;
-    if(cand.size() > 0) cout << double(cand.size() - FalseN - FalseP)/(cand.size()) << "% de acierto\n";
+    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos y " << RealAns << " Positivos Totales" << endl;
   }
 
   cout << endl;
@@ -132,8 +128,7 @@ void TestShuffle(int shinglesize) {
     }
     FalseN = RealAns - (cand.size() - FalseP);
     int TrueP = cand.size() - FalseP - FalseN;
-    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos" << endl;
-    if(cand.size() > 0) cout << double(cand.size() - FalseN - FalseP)/(cand.size()) << "% de acierto\n";
+    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos y " << RealAns << " Positivos Totales" << endl;
   }
   cout << endl;
 }

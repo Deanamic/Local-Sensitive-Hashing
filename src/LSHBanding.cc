@@ -3,11 +3,12 @@
 LSHBanding::LSHBanding(vector<vector<string>> shinglesMatrix, int r) : MinHash(shinglesMatrix,r) {}
 
 int LSHBanding::calculateBandWidth(double threshold){
+  double marge = 0.05;
   int cand = 1;
   double curDist = 1;
 	for (int bandWidth = 1; bandWidth < numPerm; bandWidth++){
 		double value = pow(1.0/double(numPerm/bandWidth),1.0/double(bandWidth));
-		if (abs(threshold - value) < curDist) {
+		if (abs(threshold - marge - value) < curDist) {
       curDist = threshold - value;
       cand = bandWidth;
     }
