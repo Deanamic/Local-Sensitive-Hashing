@@ -12,6 +12,7 @@
 #include "LSHOPBanding.h"
 using namespace std;
 
+//Test para comprovar que los métodos para calcular Jaccard son correctos
 void TestNews(int shinglesize) {
   const int numDocs = 19;
   vector<Parser> docParser(numDocs);
@@ -39,6 +40,9 @@ void TestNews(int shinglesize) {
   }
 }
 
+
+//Calcula la precision de MinHashm, OPHash, LSHBanding y LSHOPBanding
+//Con 20 documentos formado por la permutacion de 20 palabras
 void TestShuffle(int shinglesize) {
   const int numDocs = 20;
   vector<Parser> docParser(numDocs);
@@ -134,6 +138,145 @@ void TestShuffle(int shinglesize) {
   cout << endl;
 }
 
+// Realiza el mismo test que TestShuffle eliminando ciertos couts 
+// añadiendo los otros dos algoritmos
+// y midiendo tiempos de construcción y recorrido.
+void TestShuffle2(int shinglesize) {
+  const int numDocs = 20;
+  vector<Parser> docParser(numDocs);
+  vector<string> docs(numDocs);
+  vector<vector<string>> Kshingles(numDocs);
+  for(int i = 0; i < numDocs; ++i) {
+    string curDoc = "./data/ShuffleTest/ShuffleTest.dat" + to_string(i+1);
+    docParser[i] = Parser(curDoc);
+    docs[i] = docParser[i].getDocument();
+    Kshingles[i] = docParser[i].getKShingles(shinglesize);
+  }
+  auto t = clock();
+  auto t1 = clock();
+  
+  t = clock();
+  Jaccard J(Kshingles);
+  t1 = clock();  
+  for(int i = 0; i < numDocs; ++i)
+    for(int j = i + 1; j < numDocs; ++j)
+      J.getJaccard(i,j);
+  cout << "JACCARD CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
+  cout << "JACCARD RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
+    
+  t = clock();
+  JaccardAhoCorasick JAC(Kshingles, docs);
+  t1 = clock();  
+  for(int i = 0; i < numDocs; ++i)
+    for(int j = i + 1; j < numDocs; ++j)
+      JAC.getJaccard(i,j);
+  cout << "JACCARDAHOCORASICK CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
+  cout << "JACCARDAHOCORASICK RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
+    
+  t = clock();
+  MinHash M(Kshingles, 10);
+  t1 = clock();  
+  for(int i = 0; i < numDocs; ++i)
+    for(int j = i + 1; j < numDocs; ++j)
+      M.getJaccard(i,j);
+  cout << "MINHASH CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
+  cout << "MINHASH RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
+    
+  t = clock();
+  OnePermutationHash OPH(Kshingles, 3, 2);
+  t1 = clock();  
+  for(int i = 0; i < numDocs; ++i)
+    for(int j = i + 1; j < numDocs; ++j)
+      OPH.getJaccard(i,j);
+  cout << "OPH CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
+  cout << "OPH RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
+
+  cout << "Test de Precision del Minhash" << endl;
+  cout << "Con 10 Permutaciones" << endl;
+  double sum = 0;
+  int cnt = 0;
+  for(int i = 0; i < numDocs; ++i) {
+    for(int j = i + 1; j < numDocs; ++j) {
+      cnt++;
+      double dif = JAC.getJaccard(i, j) - M.getJaccard(i,j);
+      sum += dif*dif;
+    }
+  }
+  cout << "Error medio cuadratico: " << sqrt(sum)/cnt << endl << endl;
+  
+  cout << endl;
+  cout << "Test de Precision del OnePermutationhash" << endl;
+  cout << "Con 3 grupos y 2 permutaciones" << endl;
+  sum = 0;
+  cnt = 0;
+  for(int i = 0; i < numDocs; ++i) {
+    for(int j = i + 1; j < numDocs; ++j) {
+      cnt++;
+      double dif = JAC.getJaccard(i, j) - OPH.getJaccard(i,j);
+      sum += dif*dif;
+    }
+  }
+  cout << "Error medio cuadratico: " << sqrt(sum)/cnt << endl;
+  cout << endl;
+  cout << "Test de falsos positivos y falsos negativos con distintos threshholds utilizando Banding y Minhash" << endl;
+  cout << "Con 10 Permutaciones" << endl;
+  t = clock();
+  LSHBanding LSH(Kshingles, 20);
+  t1 = clock();
+  cout << "LSHBanding CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
+  for(int I = 1; I < 10; ++I) {
+    double threshhold = I * 0.1;
+    int FalseP = 0, FalseN = 0;
+    int RealAns = 0;
+    t1 = clock();
+    auto cand = LSH.getSimilarDocuments(threshhold);
+    cout << "LSHBanding RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
+    for(pair<int,int> p : cand) {
+      if(JAC.getJaccard(p.first, p.second) < threshhold) FalseP++;
+    }
+    for(int i = 0; i < numDocs; ++i) {
+      for(int j = i + 1; j < numDocs; ++j) {
+        if(JAC.getJaccard(i, j) > threshhold) ++RealAns;
+      }
+    }
+    FalseN = RealAns - (cand.size() - FalseP);
+    int TrueP = cand.size() - FalseP - FalseN;
+    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos" << endl;
+    if(cand.size() > 0) cout << double(cand.size() - FalseN - FalseP)/(cand.size()) << "% de acierto\n";
+  }
+
+  cout << endl;
+  cout << "Test de falsos positivos y falsos negativos con distintos threshholds utilizando Banding y OnePermutationhash" << endl;
+  cout << "Con 3 grupos y 2 permutaciones" << endl;
+  t = clock();
+  LSHOPBanding LSHOP(Kshingles, 4, 10); 
+  t1 = clock();
+  cout << "LSHBanding CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
+  for(int I = 1; I < 10; ++I) {
+    double threshhold = I * 0.1;
+    int FalseP = 0, FalseN = 0;
+    int RealAns = 0;
+    t1 = clock();
+    auto cand = LSH.getSimilarDocuments(threshhold);
+    cout << "LSHBanding RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
+    for(pair<int,int> p : cand) {
+      if(JAC.getJaccard(p.first, p.second) < threshhold) FalseP++;
+    }
+    for(int i = 0; i < numDocs; ++i) {
+      for(int j = i + 1; j < numDocs; ++j) {
+        if(JAC.getJaccard(i, j) > threshhold) ++RealAns;
+      }
+    }
+    FalseN = RealAns - (cand.size() - FalseP);
+    int TrueP = cand.size() - FalseP - FalseN;
+    cout << "Con threshhold: " << threshhold << ", Obtenemos " << FalseP << " Falsos Positivos y " << FalseN << " Falsos Negativos y " << TrueP << " Positivos verdaderos" << endl;
+    if(cand.size() > 0) cout << double(cand.size() - FalseN - FalseP)/(cand.size()) << "% de acierto\n";
+  }
+  cout << endl;
+}
+
+
+// Subtest de testGlobal
 void test(int num, int shinglesize, string nombreTest) {
   vector<Parser> docParser(num);
   vector<string> docs(num);
@@ -192,8 +335,25 @@ void test(int num, int shinglesize, string nombreTest) {
   cout << "ERROR Minhash" << sqrt(sum)/count << endl;
 }
 
+// Realiza el experimento 1:
+// Mide tiempos de los algoritmos que hallan Jaccard aumentando palabras o documentos
+void testGlobal() {
+	cout << "Aumenta numero de documentos " << endl;
+	test(50, 7, "./data/TestAumentarTexto/Test1/Test1.dat");	
+	test(100, 7, "./data/TestAumentarTexto/Test2/Test2.dat");
+	test(200, 7, "./data/TestAumentarTexto/Test3/Test3.dat");
+	test(400, 7, "./data/TestAumentarTexto/Test4/Test4.dat");
+	
+	cout << "Aumenta numero de palabras " << endl;
+	test(50, 7, "./data/TestAumentarNumTexto/Test1/Test4.dat");	
+	test(50, 7, "./data/TestAumentarNumTexto/Test2/Test4.dat");
+	test(50, 7, "./data/TestAumentarNumTexto/Test3/Test4.dat");
+	test(50, 7, "./data/TestAumentarNumTexto/Test4/Test4.dat");	
+
+}
+
 int main(int argc, char *argv[]) {
-  TestShuffle(5);
+  TestShuffle2(5);
   // TestNews(6);
-  //test(400, 7, "./data/TestAumentarNumTexto/Test4/Test4.dat");
+  //testGlobal();
 }
