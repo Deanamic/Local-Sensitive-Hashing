@@ -1,6 +1,9 @@
 # PracticaAlgo
 
-##TODO
-- [ ] One Permutation LSH
-- [ ] Add Tests
-- [ ] Documentation
+src: codigo
+inc: headers
+data: datasets
+bin: binarios
+
+Para compilar ejecute make bin/LSH.exe
+

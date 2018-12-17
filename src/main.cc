@@ -133,7 +133,7 @@ void TestShuffle(int shinglesize) {
   cout << endl;
 }
 
-// Realiza el mismo test que TestShuffle eliminando ciertos couts 
+// Realiza el mismo test que TestShuffle eliminando ciertos couts
 // añadiendo los otros dos algoritmos
 // y midiendo tiempos de construcción y recorrido.
 void TestShuffle2(int shinglesize) {
@@ -149,37 +149,37 @@ void TestShuffle2(int shinglesize) {
   }
   auto t = clock();
   auto t1 = clock();
-  
+
   t = clock();
   Jaccard J(Kshingles);
-  t1 = clock();  
+  t1 = clock();
   for(int i = 0; i < numDocs; ++i)
     for(int j = i + 1; j < numDocs; ++j)
       J.getJaccard(i,j);
   cout << "JACCARD CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
   cout << "JACCARD RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
-    
+
   t = clock();
   JaccardAhoCorasick JAC(Kshingles, docs);
-  t1 = clock();  
+  t1 = clock();
   for(int i = 0; i < numDocs; ++i)
     for(int j = i + 1; j < numDocs; ++j)
       JAC.getJaccard(i,j);
   cout << "JACCARDAHOCORASICK CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
   cout << "JACCARDAHOCORASICK RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
-    
+
   t = clock();
   MinHash M(Kshingles, 10);
-  t1 = clock();  
+  t1 = clock();
   for(int i = 0; i < numDocs; ++i)
     for(int j = i + 1; j < numDocs; ++j)
       M.getJaccard(i,j);
   cout << "MINHASH CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
   cout << "MINHASH RECORRIDO: " << double(clock() - t1)/CLOCKS_PER_SEC << endl;
-    
+
   t = clock();
   OnePermutationHash OPH(Kshingles, 3, 2);
-  t1 = clock();  
+  t1 = clock();
   for(int i = 0; i < numDocs; ++i)
     for(int j = i + 1; j < numDocs; ++j)
       OPH.getJaccard(i,j);
@@ -198,7 +198,7 @@ void TestShuffle2(int shinglesize) {
     }
   }
   cout << "Error medio cuadratico: " << sqrt(sum)/cnt << endl << endl;
-  
+
   cout << endl;
   cout << "Test de Precision del OnePermutationhash" << endl;
   cout << "Con 3 grupos y 2 permutaciones" << endl;
@@ -244,7 +244,7 @@ void TestShuffle2(int shinglesize) {
   cout << "Test de falsos positivos y falsos negativos con distintos threshholds utilizando Banding y OnePermutationhash" << endl;
   cout << "Con 3 grupos y 2 permutaciones" << endl;
   t = clock();
-  LSHOPBanding LSHOP(Kshingles, 4, 10); 
+  LSHOPBanding LSHOP(Kshingles, 4, 10);
   t1 = clock();
   cout << "LSHBanding CONSTRUCCIÓN: " << double(t1 - t)/CLOCKS_PER_SEC << endl;
   for(int I = 1; I < 10; ++I) {
@@ -333,22 +333,59 @@ void test(int num, int shinglesize, string nombreTest) {
 // Realiza el experimento 1:
 // Mide tiempos de los algoritmos que hallan Jaccard aumentando palabras o documentos
 void testGlobal() {
-	cout << "Aumenta numero de documentos " << endl;
-	test(50, 7, "./data/TestAumentarTexto/Test1/Test1.dat");	
-	test(100, 7, "./data/TestAumentarTexto/Test2/Test2.dat");
-	test(200, 7, "./data/TestAumentarTexto/Test3/Test3.dat");
-	test(400, 7, "./data/TestAumentarTexto/Test4/Test4.dat");
-	
-	cout << "Aumenta numero de palabras " << endl;
-	test(50, 7, "./data/TestAumentarNumTexto/Test1/Test4.dat");	
-	test(50, 7, "./data/TestAumentarNumTexto/Test2/Test4.dat");
-	test(50, 7, "./data/TestAumentarNumTexto/Test3/Test4.dat");
-	test(50, 7, "./data/TestAumentarNumTexto/Test4/Test4.dat");	
+  cout << "Aumenta numero de documentos " << endl;
+  test(50, 7, "./data/TestAumentarTexto/Test1/Test1.dat");
+  test(100, 7, "./data/TestAumentarTexto/Test2/Test2.dat");
+  test(200, 7, "./data/TestAumentarTexto/Test3/Test3.dat");
+  test(400, 7, "./data/TestAumentarTexto/Test4/Test4.dat");
+
+  cout << "Aumenta numero de palabras " << endl;
+  test(50, 7, "./data/TestAumentarNumTexto/Test1/Test4.dat");
+  test(50, 7, "./data/TestAumentarNumTexto/Test2/Test4.dat");
+  test(50, 7, "./data/TestAumentarNumTexto/Test3/Test4.dat");
+  test(50, 7, "./data/TestAumentarNumTexto/Test4/Test4.dat");
 
 }
 
+void Driver() {
+  string fileName;
+  cout << "Indique la carpeta, y el nombre base de los archivos (suponemos que todos los ficheros tienen nombre+numero de 0 a Maxnum" << endl;
+  cin >> fileName;
+  cout << "Indique el numero de archivos con este nombre base" << endl;
+  int num;
+  cin >> num;
+  cout << "Indique el tamano de los shingles" << endl;
+  int shinglesize;
+  cin >> shinglesize;
+  vector<Parser> docParser(num);
+  vector<string> docs(num);
+  vector<vector<string>> Kshingles(num);
+  for(int i = 0; i < num; ++i) {
+    string curDoc = fileName + to_string(i);
+    docParser[i] = Parser(curDoc);
+    docs[i] = docParser[i].getDocument();
+    Kshingles[i] = docParser[i].getKShingles(shinglesize);
+  }
+  Jaccard J(Kshingles);
+  JaccardAhoCorasick JAC(Kshingles, docs);
+  MinHash M(Kshingles, 1000);
+  OnePermutationHash OPH(Kshingles, 5, 100);
+
+
+  cout << "Indique el numero de los dos archivos que quiere comparar" << endl;
+  int x, y;
+  while(cin >> x >> y) {
+    if(min(x,y) < 0 || max(x,y) >= num) cout << "Indices invalidos" << endl;
+    else {
+      cout << fixed << setprecision(5) << "Utilizando tablas de Hash: " << J.getJaccard(x,y) << "| Utilizando Aho-Corasick: " << JAC.getJaccard(x,y) << "| Utilizando MinHash: " << M.getJaccard(x,y) << "| Utilizando One Permutation Hash: " << OPH.getJaccard(x,y) << endl;
+    }
+  }
+}
 int main(int argc, char *argv[]) {
+  /*
   TestShuffle2(5);
-  // TestNews(6);
-  //testGlobal();
+  TestNews(6);
+  testGlobal();
+  */
+  Driver();
 }
